@@ -120,7 +120,7 @@ void CAttack::SetCritical(bool value)
         xi::SkillType skilltype  = xi::SkillType::None;
         SLOTTYPE      weaponSlot = static_cast<SLOTTYPE>(GetWeaponSlot());
 
-        if (m_attacker->objtype == TYPE_PC)
+        if (m_attacker->IsPCOrNtTrust())
         {
             if (auto* weapon = dynamic_cast<CItemWeapon*>(m_attacker->m_Weapons[weaponSlot]))
             {
@@ -455,18 +455,22 @@ bool CAttack::CheckCounter()
 
     uint16 seiganChance = 0;
 
-    if (m_victim->objtype == TYPE_PC && m_victim->getMod(Mod::SEIGAN_COUNTER_BONUS) > 0)
+    if (m_victim->IsPCOrNtTrust() && m_victim->getMod(Mod::SEIGAN_COUNTER_BONUS) > 0)
     {
         // counter check (rate AND your hit rate makes it land, else its just a regular hit)
         // having seigan active gives chance to counter at 25% of the zanshin proc rate
         auto* PChar              = static_cast<CCharEntity*>(m_victim);
-        auto* weapon             = dynamic_cast<CItemWeapon*>(PChar->m_Weapons[SLOT_MAIN]);
+        auto* weapon             = dynamic_cast<CItemWeapon*>(m_victim->m_Weapons[SLOT_MAIN]);
         bool  isValid2HandWeapon = weapon && weapon->isTwoHanded();
-        bool  hasValidSeigan     = isValid2HandWeapon && PChar->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Seigan, 0);
+        bool  hasValidSeigan     = isValid2HandWeapon && m_victim->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Seigan, 0);
 
         if (hasValidSeigan)
         {
-            seiganChance = PChar->getMod(Mod::ZANSHIN) + PChar->PMeritPoints->GetMeritValue(MERIT_ZASHIN_ATTACK_RATE, PChar);
+            seiganChance = PChar->getMod(Mod::ZANSHIN);
+            if (PChar)
+            {
+                seiganChance += PChar->PMeritPoints->GetMeritValue(MERIT_ZASHIN_ATTACK_RATE, PChar);
+            }
             seiganChance = std::clamp<uint16>(seiganChance, 0, 100);
             seiganChance /= 4;
         }
@@ -611,9 +615,9 @@ void CAttack::ProcessDamage()
     }
 
     // Consume mana
-    if (m_attacker->objtype == TYPE_PC)
+    if (m_attacker->IsPCOrNtTrust())
     {
-        m_bonusBasePhysicalDamage += battleutils::doConsumeManaEffect(static_cast<CCharEntity*>(m_attacker));
+        m_bonusBasePhysicalDamage += battleutils::doConsumeManaEffect(m_attacker);
     }
 
     SLOTTYPE slot = static_cast<SLOTTYPE>(GetWeaponSlot());
@@ -700,19 +704,19 @@ void CAttack::ProcessDamage()
     }
 
     // Apply "Double Attack" damage and "Triple Attack" damage mods
-    if (m_attackType == PHYSICAL_ATTACK_TYPE::DOUBLE && m_attacker->objtype == TYPE_PC)
+    if (m_attackType == PHYSICAL_ATTACK_TYPE::DOUBLE && m_attacker->IsPCOrNtTrust())
     {
         m_damage = std::floor<uint32>(m_damage * 1.0f + std::max(m_attacker->getMod(Mod::DOUBLE_ATTACK_DMG) / 100.0f, 0.f));
     }
-    else if (m_attackType == PHYSICAL_ATTACK_TYPE::TRIPLE && m_attacker->objtype == TYPE_PC)
+    else if (m_attackType == PHYSICAL_ATTACK_TYPE::TRIPLE && m_attacker->IsPCOrNtTrust())
     {
         m_damage = std::floor<uint32>(m_damage * 1.0f + std::max(m_attacker->getMod(Mod::TRIPLE_ATTACK_DMG) / 100.0f, 0.f));
     }
 
     // Soul eater.
-    if (m_attacker->objtype == TYPE_PC)
+    if (m_attacker->IsPCOrNtTrust())
     {
-        m_damage = battleutils::doSoulEaterEffect(static_cast<CCharEntity*>(m_attacker), m_damage);
+        m_damage = battleutils::doSoulEaterEffect(m_attacker, m_damage);
     }
 
     // Set attack type to Samba if the attack type is normal.  Don't overwrite other types.  Used for Samba double damage.

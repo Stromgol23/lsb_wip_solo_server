@@ -751,7 +751,7 @@ int32 CalculateEnspellDamage(CBattleEntity* PAttacker, CBattleEntity* PDefender,
         resist = 0.5f;
     }
 
-    if (PAttacker->objtype == TYPE_PC)
+    if (PAttacker->IsPCOrNtTrust())
     {
         CItemEquipment* waist = ((CCharEntity*)PAttacker)->getEquip(SLOT_WAIST);
         if (waist && waist->getID() == obi[element - 1])
@@ -1199,20 +1199,23 @@ void HandleEnspell(CBattleEntity* PAttacker, CBattleEntity* PDefender, action_re
     if (PAttacker->objtype == TYPE_PC)
     {
         PChar = dynamic_cast<CCharEntity*>(PAttacker);
+    }
 
+    if (PAttacker->IsPCOrNtTrust())
+    {
         if (!settings::get<bool>("map.DISABLE_TREASURE_HUNTER_PROCS"))
         {
             // TODO: cleanup lua further so we can handle all this add effect stuff somewhere else
             // Treasure hunter takes priority over enspells
-            if (PChar &&
+            if (PAttacker &&
                 finaldamage > 0 &&
                 isFirstSwing &&
                 PDefender->objtype == TYPE_MOB &&
-                PChar->GetMJob() == JOB_THF &&
-                PChar->hasTrait(TRAITTYPE::TRAIT_TREASURE_HUNTER)) // TH trait as a requirement is assumed, but likely. Could this just be a level 15 check instead?
+                PAttacker->GetMJob() == JOB_THF &&
+                PAttacker->hasTrait(TRAITTYPE::TRAIT_TREASURE_HUNTER)) // TH trait as a requirement is assumed, but likely. Could this just be a level 15 check instead?
             {
                 auto PMob = dynamic_cast<CMobEntity*>(PDefender);
-                if (PMob && PMob->m_THLvl < (12 + PChar->getMod(Mod::TREASURE_HUNTER_CAP))) // TH proc cap is 12 + job gifts
+                if (PMob && PMob->m_THLvl < (12 + PAttacker->getMod(Mod::TREASURE_HUNTER_CAP))) // TH proc cap is 12 + job gifts
                 {
                     int16 playerTH = PChar->getMod(Mod::TREASURE_HUNTER);
 
@@ -1232,7 +1235,7 @@ void HandleEnspell(CBattleEntity* PAttacker, CBattleEntity* PDefender, action_re
                     // Not known if Feint and Gifts are multiplicative or additive. Currently assuming additive
                     // The mob has an evasion down from feint that applies this mod.
                     // The player has job point gifts that apply this mod.
-                    float procRateBonus = 1.0f + (PChar->getMod(Mod::TREASURE_HUNTER_PROC) + PMob->getMod(Mod::TREASURE_HUNTER_PROC)) / 100.0f;
+                    float procRateBonus = 1.0f + (PAttacker->getMod(Mod::TREASURE_HUNTER_PROC) + PMob->getMod(Mod::TREASURE_HUNTER_PROC)) / 100.0f;
 
                     // It's unlikely that SATA bonus is multiplicative SA * TA bonus -- the rate would be astronomically higher if it was
                     // Add the two together if they exist
@@ -2112,6 +2115,14 @@ auto TakePhysicalDamage(CBattleEntity* PAttacker, CBattleEntity* PDefender, PHYS
                     absorb = std::clamp(100 - slotSub->getShieldAbsorption(), 0, 100);
                 }
             }
+            else if (PDefender->IsPCOrNtTrust())
+            {
+                CItemEquipment* slotSub = PDefender->m_Weapons[SLOT_SUB];
+                if (slotSub && slotSub->IsShield())
+                {
+                    absorb = std::clamp(100 - slotSub->getShieldAbsorption(), 0, 100);
+                }
+            }
 
             // Reprisal
             if (damage > 0 && PDefender->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Reprisal))
@@ -2232,7 +2243,7 @@ auto TakePhysicalDamage(CBattleEntity* PAttacker, CBattleEntity* PDefender, PHYS
         }
 
         // try to interrupt spell if not a ranged attack and not blocked by Shield Mastery
-        if ((!isRanged) && !((isBlocked) && (PDefender->objtype == TYPE_PC) && (charutils::hasTrait((CCharEntity*)PDefender, TRAIT_SHIELD_MASTERY))))
+        if ((!isRanged) && !((isBlocked) && (PDefender->IsPCOrNtTrust()) && (PDefender->hasTrait(TRAIT_SHIELD_MASTERY))))
         {
             PDefender->TryHitInterrupt(PAttacker);
         }
@@ -2250,7 +2261,7 @@ auto TakePhysicalDamage(CBattleEntity* PAttacker, CBattleEntity* PDefender, PHYS
         {
             int32 delay = 0;
 
-            if (isRanged && PAttacker->objtype == TYPE_PC)
+            if (isRanged && PAttacker->IsPCOrNtTrust())
             {
                 delay = GetBaseRangedDelay(PAttacker);
             }
@@ -2531,14 +2542,14 @@ uint8 GetCritHitRate(CBattleEntity* PAttacker, CBattleEntity* PDefender, bool ig
     {
         return 100;
     }
-    else if (PAttacker->objtype == TYPE_PC && (!ignoreSneakTrickAttack) && PAttacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::SneakAttack))
+    else if (PAttacker->IsPCOrNtTrust() && (!ignoreSneakTrickAttack) && PAttacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::SneakAttack))
     {
         if (behind(PAttacker->loc.p, PDefender->loc.p, 64) || PAttacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Hide))
         {
             critHitRate = 100;
         }
     }
-    else if (PAttacker->objtype == TYPE_PC && PAttacker->GetMJob() == JOB_THF && charutils::hasTrait((CCharEntity*)PAttacker, TRAIT_ASSASSIN) &&
+    else if (PAttacker->IsPCOrNtTrust() && PAttacker->GetMJob() == JOB_THF && PAttacker->hasTrait(TRAIT_ASSASSIN) &&
              (!ignoreSneakTrickAttack) && PAttacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::TrickAttack))
     {
         CBattleEntity* taChar = battleutils::getAvailableTrickAttackChar(PAttacker, PDefender);
@@ -3094,6 +3105,15 @@ bool IsAbsorbByShadow(CBattleEntity* PDefender, CBattleEntity* PAttacker)
         }
         else if (Shadow < 4 && Mod::UTSUSEMI == modShadow)
         {
+            if (PDefender->IsPCOrNtTrust())
+            {
+                // player loses 25 CE if attack absorbed by utsusemi shadow
+                if (auto* PMob = dynamic_cast<CMobEntity*>(PAttacker))
+                {
+                    PMob->PEnmityContainer->UpdateEnmity(PDefender, -25, 0);
+                }
+            }
+
             if (PDefender->objtype == TYPE_PC)
             {
                 CStatusEffect* PStatusEffect = PDefender->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::CopyImage);
@@ -3109,12 +3129,7 @@ bool IsAbsorbByShadow(CBattleEntity* PDefender, CBattleEntity* PAttacker)
                         case 2:
                             icon = static_cast<uint16>(xi::StatusEffect::CopyImage2);
                             break;
-                    }
-                    // player loses 25 CE if attack absorbed by utsusemi shadow
-                    if (auto* PMob = dynamic_cast<CMobEntity*>(PAttacker))
-                    {
-                        PMob->PEnmityContainer->UpdateEnmity(PDefender, -25, 0);
-                    }
+                    }       
                     PStatusEffect->SetIcon(icon);
                     PDefender->StatusEffectContainer->UpdateStatusIcons();
                 }
@@ -3943,21 +3958,21 @@ void TransferEnmity(CBattleEntity* PHateReceiver, CBattleEntity* PHateGiver, CMo
  *                                                                       *
  ************************************************************************/
 
-uint16 doSoulEaterEffect(CCharEntity* m_PChar, uint32 damage)
+uint16 doSoulEaterEffect(CBattleEntity* PEntity, uint32 damage)
 {
-    if (m_PChar->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Souleater))
+    if (PEntity->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Souleater))
     {
         // Souleater's HP consumed is 10% (base) + x% from gear (ONLY HIGHEST) + x% from gear augments.
-        float souleaterBonus    = m_PChar->getMaxGearMod(Mod::SOULEATER_EFFECT) * 0.01;
-        float souleaterBonusII  = m_PChar->getMod(Mod::SOULEATER_EFFECT_II) * 0.01;
-        float stalwartSoulBonus = 1.f - std::max(static_cast<float>(m_PChar->getMod(Mod::STALWART_SOUL)) / 100, 0.f);
-        float bonusDamage       = m_PChar->health.hp * (0.1f + std::max(souleaterBonus + souleaterBonusII, 0.f));
+        float souleaterBonus    = PEntity->getMaxGearMod(Mod::SOULEATER_EFFECT) * 0.01;
+        float souleaterBonusII  = PEntity->getMod(Mod::SOULEATER_EFFECT_II) * 0.01;
+        float stalwartSoulBonus = 1.f - std::max(static_cast<float>(PEntity->getMod(Mod::STALWART_SOUL)) / 100, 0.f);
+        float bonusDamage       = PEntity->health.hp * (0.1f + std::max(souleaterBonus + souleaterBonusII, 0.f));
 
         if (bonusDamage >= 1)
         {
-            m_PChar->addHP(-HandleStoneskin(m_PChar, (int32)(bonusDamage * stalwartSoulBonus)));
+            PEntity->addHP(-HandleStoneskin(PEntity, (int32)(bonusDamage * stalwartSoulBonus)));
 
-            if (m_PChar->GetMJob() == JOB_DRK)
+            if (PEntity->GetMJob() == JOB_DRK)
             {
                 damage += bonusDamage;
             }
@@ -3970,14 +3985,14 @@ uint16 doSoulEaterEffect(CCharEntity* m_PChar, uint32 damage)
     return damage;
 }
 
-uint16 doConsumeManaEffect(CCharEntity* m_PChar)
+uint16 doConsumeManaEffect(CBattleEntity* PEntity)
 {
     auto bonusDmg = 0;
-    if (m_PChar->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::ConsumeMana))
+    if (PEntity->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::ConsumeMana))
     {
-        bonusDmg += (uint32)(floor(m_PChar->health.mp / 10));
-        m_PChar->health.mp = 0;
-        m_PChar->StatusEffectContainer->DelStatusEffect(xi::StatusEffect::ConsumeMana);
+        bonusDmg += (uint32)(floor(PEntity->health.mp / 10));
+        PEntity->health.mp = 0;
+        PEntity->StatusEffectContainer->DelStatusEffect(xi::StatusEffect::ConsumeMana);
     }
     return bonusDmg;
 }
@@ -4599,7 +4614,7 @@ float HandleTranquilHeart(CBattleEntity* PEntity)
 {
     float reductionPercent = 0.0f;
 
-    if (PEntity->objtype == TYPE_PC && charutils::hasTrait((CCharEntity*)PEntity, TRAIT_TRANQUIL_HEART))
+    if (PEntity->IsPCOrNtTrust() && PEntity->hasTrait(TRAIT_TRANQUIL_HEART))
     {
         int16 healingSkill = PEntity->GetSkill(xi::SkillType::HealingMagic);
         reductionPercent   = ((healingSkill / 10.0f) * 0.5f);
@@ -5261,7 +5276,7 @@ int16 GetRangedDelayReduction(CBattleEntity* battleEntity, int16 delay)
 
 int32 GetRangedAttackBonuses(CBattleEntity* battleEntity)
 {
-    if (battleEntity->objtype != TYPE_PC)
+    if (!battleEntity->IsPCOrNtTrust())
     {
         return 0;
     }
@@ -5285,7 +5300,7 @@ int32 GetRangedAttackBonuses(CBattleEntity* battleEntity)
 
 int32 GetRangedAccuracyBonuses(CBattleEntity* battleEntity)
 {
-    if (battleEntity->objtype != TYPE_PC)
+    if (!battleEntity->IsPCOrNtTrust())
     {
         return 0;
     }
@@ -6181,7 +6196,7 @@ CBattleEntity* GetCoverAbilityUser(CBattleEntity* PCoverAbilityTarget, CBattleEn
     return nullptr;
 }
 
-bool IsMagicCovered(CCharEntity* PCoverAbilityUser)
+bool IsMagicCovered(CBattleEntity* PCoverAbilityUser)
 {
     return PCoverAbilityUser != nullptr && PCoverAbilityUser->getMod(Mod::COVER_MAGIC_AND_RANGED) == 1;
 }

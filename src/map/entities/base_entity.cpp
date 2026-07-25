@@ -24,6 +24,7 @@
 #include "common/tracy.h"
 
 #include "ai/ai_container.h"
+#include "packets/entity_update.h"
 
 #include "battlefield.h"
 #include "instance.h"
@@ -253,4 +254,9 @@ uint16 CBaseEntity::GetModelId() const
 bool CBaseEntity::IsDynamicEntity() const
 {
     return this->targid >= 0x700;
+}
+
+bool CBaseEntity::IsPCOrNtTrust() const
+{
+    return (this->objtype & TYPE_PC) || (this->objtype == TYPE_TRUST && this->look.size == MODEL_EQUIPPED);
 }

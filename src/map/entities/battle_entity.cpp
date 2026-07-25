@@ -688,7 +688,7 @@ uint16 CBattleEntity::GetMainWeaponDmg()
 
     if (auto* weapon = dynamic_cast<CItemWeapon*>(m_Weapons[SLOT_MAIN]))
     {
-        if ((weapon->getReqLvl() > GetMLevel()) && objtype == TYPE_PC)
+        if ((weapon->getReqLvl() > GetMLevel()) && objtype == TYPE_PC)    // nt TODO : is this relevant?
         {
             // TODO: Determine the difference between augments and latents w.r.t. equipment scaling.
             // MAIN_DMG_RATING already has equipment scaling applied elsewhere.
@@ -882,7 +882,7 @@ uint16 CBattleEntity::GetMainWeaponRank()
         wDamage -= weapon->getModifier(Mod::DMG_RATING);    // Company sword, Maneater, etc don't boost weapon rank
         // apply the H2H formula adjustment only to players
         // as mobs use H2H for dual wield and thus further research is needed
-        if (objtype == TYPE_PC && weapon->getSkillType() == xi::SkillType::HandToHand)
+        if (IsPCOrNtTrust() && weapon->getSkillType() == xi::SkillType::HandToHand)
         {
             wDamage += 3;
         }
@@ -1136,7 +1136,7 @@ uint16 CBattleEntity::ATT(SLOTTYPE slot)
     float strMultiplier = 0.5;
 
     // https://www.bg-wiki.com/ffxi/Strength
-    if (objtype != TYPE_PC)
+    if (!IsPCOrNtTrust())
     {
         strMultiplier = 0.5;
     }
@@ -1168,7 +1168,7 @@ uint16 CBattleEntity::ATT(SLOTTYPE slot)
         ATT += this->getMod(Mod::ENSPELL_DMG);
     }
 
-    if (this->objtype & TYPE_PC)
+    if (IsPCOrNtTrust())
     {
         if (weapon)
         {
@@ -1218,7 +1218,7 @@ auto CBattleEntity::RATT(uint16 bonusAtt) -> uint16
     uint16 skillLevel    = 0;
     double strMultiplier = 0.5;
 
-    if (objtype == TYPE_PC)
+    if (IsPCOrNtTrust())
     {
         strMultiplier = settings::get<float>("main.RANGED_STR_ATTACK_MULTIPLIER");
         auto* weapon  = dynamic_cast<CItemWeapon*>(m_Weapons[SLOT_RANGED]);
@@ -1308,7 +1308,7 @@ auto CBattleEntity::RACC(uint16 bonusAcc) -> uint16
 
     int32 RACC = 0;
 
-    if (objtype & TYPE_PC)
+    if (IsPCOrNtTrust())
     {
         auto* weapon = dynamic_cast<CItemWeapon*>(m_Weapons[SLOT_RANGED]);
 
@@ -1418,7 +1418,7 @@ uint16 CBattleEntity::ACC(uint8 attackNumber, uint16 offsetAccuracy)
 
     int32 ACC = 0;
 
-    if (this->objtype & TYPE_PC)
+    if (this->IsPCOrNtTrust())
     {
         float         dexMultiplier = 0.5f;
         xi::SkillType skill         = xi::SkillType::None;
@@ -1594,7 +1594,7 @@ uint16 CBattleEntity::DEF()
     // https://www.bg-wiki.com/ffxi/Defense
     // TODO: era setting? Was this always like this?
     // mobs & pets have this pre-calculated elsewhere (mobutils/petutils) and stored in m_modStat[Mod::DEF]
-    if (this->objtype == TYPE_PC)
+    if (this->IsPCOrNtTrust())
     {
         if (level < 51)
         {
@@ -2469,10 +2469,10 @@ void CBattleEntity::OnCastFinished(CMagicState& state, action_t& action)
             break;
         default:
         {
-            if (this->objtype == TYPE_MOB && PActionTarget->objtype == TYPE_PC)
+            if (this->objtype == TYPE_MOB && PActionTarget->IsPCOrNtTrust())
             {
                 CBattleEntity* PCoverAbilityUser = battleutils::GetCoverAbilityUser(PActionTarget, this);
-                IsMagicCovered                   = battleutils::IsMagicCovered(static_cast<CCharEntity*>(PCoverAbilityUser));
+                IsMagicCovered                   = battleutils::IsMagicCovered(PCoverAbilityUser);
 
                 if (IsMagicCovered)
                 {
@@ -2946,7 +2946,7 @@ void CBattleEntity::OnMobSkillFinished(CMobSkillState& state, action_t& action)
     }
     else
     {
-        if (this->objtype == TYPE_MOB && PTarget->objtype == TYPE_PC)
+        if (this->objtype == TYPE_MOB && PTarget->IsPCOrNtTrust())
         {
             CBattleEntity* PCoverAbilityUser = battleutils::GetCoverAbilityUser(PTarget, this);
             if (PCoverAbilityUser != nullptr)
@@ -3724,7 +3724,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                         auto*         targ_weapon   = dynamic_cast<CItemWeapon*>(PTarget->m_Weapons[SLOT_MAIN]);
                         xi::SkillType skilltype     = xi::SkillType::None;
 
-                        if (PTarget->objtype == TYPE_PC)
+                        if (PTarget->IsPCOrNtTrust())
                         {
                             if (targ_weapon)
                             {
@@ -3738,7 +3738,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
 
                         float mobH2HPenalty = 1.0f;
 
-                        if (PTarget->objtype == TYPE_PC && skilltype == xi::SkillType::HandToHand)
+                        if (PTarget->IsPCOrNtTrust() && skilltype == xi::SkillType::HandToHand)
                         {
                             naturalh2hDMG = std::floor<int32>((PTarget->GetSkill(xi::SkillType::HandToHand) * 0.11f) + 3);
                         }

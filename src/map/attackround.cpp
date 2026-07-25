@@ -41,7 +41,7 @@ CAttackRound::CAttackRound(CBattleEntity* attacker, CBattleEntity* defender)
     m_taEntity = battleutils::getAvailableTrickAttackChar(attacker, attacker->GetBattleTarget());
 
     // Get cover partner
-    if (attacker->GetBattleTarget()->objtype == TYPE_PC)
+    if (attacker->GetBattleTarget()->IsPCOrNtTrust())
     {
         m_coverAbilityUserEntity = battleutils::GetCoverAbilityUser(attacker->GetBattleTarget(), attacker);
     }
@@ -527,7 +527,7 @@ void CAttackRound::CreateKickAttacks()
  ************************************************************************/
 void CAttackRound::CreateDakenAttack()
 {
-    if (m_attacker->objtype == TYPE_PC)
+    if (m_attacker->IsPCOrNtTrust())
     {
         auto* PAmmo = static_cast<CItemWeapon*>(m_attacker->m_Weapons[SLOT_AMMO]);
         if (PAmmo && PAmmo->isShuriken())

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 
   Copyright (c) 2010-2015 Darkstar Dev Teams
@@ -258,6 +258,7 @@ public:
     virtual void HandleErrorMessage(std::unique_ptr<CBasicPacket>&) {};
 
     bool IsDynamicEntity() const;
+    bool IsPCOrNtTrust() const;
 
     uint32         id;             // global identifier unique on the server
     uint16         targid;         // local identifier unique to the zone

@@ -198,8 +198,8 @@ bool HasNinjaTool(CBattleEntity* PEntity, CSpell* PSpell, bool ConsumeTool);
 void applyCharm(CBattleEntity* PCharmer, CBattleEntity* PVictim, timer::duration charmTime = 0s);
 void unCharm(CBattleEntity* PEntity);
 
-uint16 doSoulEaterEffect(CCharEntity* m_PChar, uint32 damage);
-uint16 doConsumeManaEffect(CCharEntity* m_PChar);
+uint16 doSoulEaterEffect(CBattleEntity* PEntity, uint32 damage);
+uint16 doConsumeManaEffect(CBattleEntity* PEntity);
 int32  getOverWhelmDamageBonus(CBattleEntity* PAttacker, CBattleEntity* PDefender, int32 damage);
 
 void  TransferEnmity(CBattleEntity* PHateReceiver, CBattleEntity* PHateGiver, CMobEntity* PMob, uint8 percentToTransfer);
@@ -268,7 +268,7 @@ auto  GetRuneEnhancementDamageType(xi::StatusEffect runeEffect) -> xi::DamageTyp
 auto  GetRuneEnhancementElement(xi::StatusEffect runeEffect) -> ELEMENT;
 
 CBattleEntity* GetCoverAbilityUser(CBattleEntity* PCoverAbilityTarget, CBattleEntity* PMob);
-bool           IsMagicCovered(CCharEntity* PCoverAbilityUser);
+bool           IsMagicCovered(CBattleEntity* PCoverAbilityUser);
 void           ConvertDmgToMP(CBattleEntity* PDefender, int32 damage, bool IsCovered);
 void           addEcosystemKillerEffects(CBattleEntity* PBattleEntity);
 auto           CheckLiementAbsorb(CBattleEntity* PBattleEntity, xi::DamageType DamageType) -> float;
