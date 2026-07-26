@@ -63,7 +63,7 @@ xi.combat.ranged.getSweetSpotByAttacker = function(attacker)
 end
 
 xi.combat.ranged.attackDistancePenalty = function(attacker, defender)
-    if not attacker:isPC() then
+    if not attacker:isPC() then   -- nt TODO : might be hard to control. Skip for now
         return 0
     end
 
@@ -93,7 +93,7 @@ xi.combat.ranged.attackDistancePenalty = function(attacker, defender)
 end
 
 xi.combat.ranged.accuracyDistancePenalty = function(attacker, defender)
-    if not attacker:isPC() then
+    if not attacker:isPC() then     -- nt TODO : might be hard to control. Skip for now
         return 0
     end
 

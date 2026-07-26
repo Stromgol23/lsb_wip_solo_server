@@ -91,7 +91,7 @@ local function getMultiAttacks(attacker, target, wsParams, firstHit, offHand)
 
     -- Try OaX for Jumps
     -- ... What's the correct dual wield interaction?
-    if isJump and bonusHits == 0 and attacker:isPC() then
+    if isJump and bonusHits == 0 and attacker:isPCOrNtTrust() then
         -- getWeaponHitCount will always return 1 if there's a weapon in the slot, which is already accounted for.
         if offHand then
             bonusHits = attacker:getWeaponHitCount(true) - 1

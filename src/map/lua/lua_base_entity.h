@@ -128,6 +128,7 @@ public:
     uint8 getObjType() const;
 
     bool isPC() const;
+    bool isPCOrNtTrust() const;
     bool isNPC() const;
     bool isMob() const;
     bool isPet() const;

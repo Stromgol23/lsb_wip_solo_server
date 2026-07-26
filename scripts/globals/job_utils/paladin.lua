@@ -12,7 +12,7 @@ xi.job_utils.paladin.checkCover = function(player, target, ability)
     if
         target == nil or
         target:getID() == player:getID() or
-        not target:isPC()
+        not target:isPCOrNtTrust()
     then
         return xi.msg.basic.CANNOT_PERFORM_TARG, 0
     else

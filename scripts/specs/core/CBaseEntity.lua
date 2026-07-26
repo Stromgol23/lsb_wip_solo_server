@@ -385,6 +385,11 @@ end
 
 ---@nodiscard
 ---@return boolean
+function CBaseEntity:isPCOrNtTrust()
+end
+
+---@nodiscard
+---@return boolean
 function CBaseEntity:isNPC()
 end
 

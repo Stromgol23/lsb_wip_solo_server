@@ -13,7 +13,7 @@ xi.combat.magicHitRate = xi.combat.magicHitRate or {}
 -----------------------------------
 local function calculateTargetResistanceRank(actor, target, params)
     -- Early return: Players don't use resistance ranks.
-    if target:isPC() then
+    if target:isPCOrNtTrust() then
         return 0
     end
 
@@ -57,7 +57,7 @@ local function magicAccuracyFromSkill(actor, params)
         end
 
         if params.skillType == xi.skill.SINGING then
-            if actor:isPC() then
+            if actor:isPC() then  -- nt TODO : apply it here?
                 -- String instruments sacrifice accuracy and amplify the AoE in exchange.
                 local rangedSkill = actor:getWeaponSkillType(xi.slot.RANGED)
                 if rangedSkill == xi.skill.WIND_INSTRUMENT then
@@ -452,7 +452,7 @@ local function calculateTargetMagicEvasion(actor, target, params)
 
     -- Level correction. Target gets a bonus the higher the level if it's a mob. Never a penalty.
     if
-        not target:isPC() and
+        not target:isPCOrNtTrust() and
         xi.data.levelCorrection.isLevelCorrectedZone(actor)
     then
         magicEva = magicEva + utils.clamp(target:getMainLvl() - actor:getMainLvl(), 0, 100) * 4
@@ -487,7 +487,7 @@ local function calculateResistanceFactor(actor, target, params)
     local maxResistTier = 3
 
     -- Players: Affected by element shown in equipment screen.
-    if target:isPC() then
+    if target:isPCOrNtTrust() then
         local playerElementalEvasion = target:getMod(xi.data.element.getElementalMEVAModifier(params.magicalElement)) or 0
 
         if playerElementalEvasion < 0 then

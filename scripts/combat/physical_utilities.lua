@@ -687,7 +687,7 @@ xi.combat.physical.calculateMeleePDIF = function(actor, target, weaponType, wsAt
 
     -- Only players suffer from negative level difference.
     if
-        not actor:isPC() and
+        not actor:isPCOrNtTrust() and
         levelDifFactor < 0
     then
         levelDifFactor = 0
@@ -695,7 +695,7 @@ xi.combat.physical.calculateMeleePDIF = function(actor, target, weaponType, wsAt
 
     -- Players do not get positive level correction, only monsters
     if
-        actor:isPC() and
+        actor:isPCOrNtTrust() and
         levelDifFactor > 0
     then
         levelDifFactor = 0
@@ -711,7 +711,7 @@ xi.combat.physical.calculateMeleePDIF = function(actor, target, weaponType, wsAt
     local damageLimitPercent = 1 + actor:getMod(xi.mod.DAMAGE_LIMITP) / 100
     local pDifFinalCap       = 0
 
-    if actor:isPC() then
+    if actor:isPCOrNtTrust() then
         pDifFinalCap = (xi.combat.physical.pDifWeaponCapTable[weaponType] + damageLimitPlus) * damageLimitPercent + (isCritical and 1 or 0)
 
         local sRatio = getSpikeRatio(true, wRatio)
@@ -829,7 +829,7 @@ xi.combat.physical.calculateRangedPDIF = function(actor, target, weaponType, wsA
     local levelDifFactor = 0
 
     -- Mod-based bypass for ranged level correction
-    if actor:isPC() and actor:getMod(xi.mod.RA_IGNORE_LVL_DIFF) > 0 then
+    if actor:isPCOrNtTrust() and actor:getMod(xi.mod.RA_IGNORE_LVL_DIFF) > 0 then
         applyLevelCorrection = false
     end
 
@@ -842,7 +842,7 @@ xi.combat.physical.calculateRangedPDIF = function(actor, target, weaponType, wsA
 
     -- Only players suffer from negative level difference.
     if
-        not actor:isPC() and
+        not actor:isPCOrNtTrust() and
         levelDifFactor < 0
     then
         levelDifFactor = 0
@@ -850,7 +850,7 @@ xi.combat.physical.calculateRangedPDIF = function(actor, target, weaponType, wsA
 
     -- Players do not get positive level correction, only monsters
     if
-        actor:isPC() and
+        actor:isPCOrNtTrust() and
         levelDifFactor > 0
     then
         levelDifFactor = 0
@@ -869,7 +869,7 @@ xi.combat.physical.calculateRangedPDIF = function(actor, target, weaponType, wsA
     local damageLimitPercent = 1 + actor:getMod(xi.mod.DAMAGE_LIMITP) / 100
     local pDifFinalCap       = 0
 
-    if actor:isPC() then
+    if actor:isPCOrNtTrust() then
         pDifFinalCap = (xi.combat.physical.pDifWeaponCapTable[weaponType] + damageLimitPlus) * damageLimitPercent -- Added damage limit bonuses
     else
         -- 4.0 is guessed. there is some indication that mob pdif can go to 8.0 in ilvl content
@@ -1012,7 +1012,7 @@ end
 ---@param slot xi.slot
 ---@return number
 xi.combat.physical.criticalRateFromWeaponSlot = function(actor, slot)
-    if actor:isPC() then
+    if actor:isPCOrNtTrust() then
         return actor:getGearModFromSlot(slot, xi.mod.CRITHITRATE_ONLY_WEP) / 100
     end
 
@@ -1115,7 +1115,7 @@ xi.combat.physical.canParry = function(defender, attacker)
         defender:isEngaged() and
         not defender:hasPreventActionEffect(true) -- Not stunned, slept, etc, but can parry when charmed
     then
-        if defender:isPC() then
+        if defender:isPCOrNtTrust() then
             if defender:getSkillRank(xi.skill.PARRY) == 0 then
                 return false
             end
@@ -1140,13 +1140,13 @@ xi.combat.physical.calculateParryRate = function(defender, attacker)
     local attackerSkill = 0
     local defenderSkill = 0
 
-    if defender:isPC() then
+    if defender:isPCOrNtTrust() then
         defenderSkill = defender:getSkillLevel(xi.skill.PARRY) + defender:getMod(xi.mod.PARRY) + defender:getILvlParry()
     else
         defenderSkill = xi.data.skillLevel.getSkillCap(defender:getMainLvl(), xi.skillRank.A_PLUS)
     end
 
-    if attacker:isPC() then
+    if attacker:isPCOrNtTrust() then
         attackerSkill = attacker:getSkillLevel(attacker:getWeaponSkillType(xi.slot.MAIN)) + attacker:getILvlSkill()
     else
         attackerSkill = xi.data.skillLevel.getSkillCap(attacker:getMainLvl(), xi.skillRank.A_PLUS)
@@ -1192,7 +1192,7 @@ xi.combat.physical.canGuard = function(defender, attacker)
         defender:isEngaged() and
         not defender:hasPreventActionEffect(true) -- Not stunned, slept, etc, but can guard when charmed
     then
-        if defender:isPC() and defender:getSkillRank(xi.skill.GUARD) > 0 then
+        if defender:isPCOrNtTrust() and defender:getSkillRank(xi.skill.GUARD) > 0 then
             local mainWeapon = defender:getEquippedItem(xi.slot.MAIN)
             canGuard = (not mainWeapon) or mainWeapon:getSkillType() == xi.skill.HAND_TO_HAND
         elseif
@@ -1212,13 +1212,13 @@ xi.combat.physical.calculateGuardRate = function(defender, attacker)
     local attackerSkill = 0
     local defenderSkill = 0
 
-    if defender:isPC() then
+    if defender:isPCOrNtTrust() then
         defenderSkill = defender:getSkillLevel(xi.skill.GUARD) + defender:getMod(xi.mod.GUARD) + defender:getILvlParry() -- getILvlParry also gets guard (h2h cannot have parry on the weapon)
     else
         defenderSkill = xi.data.skillLevel.getSkillCap(defender:getMainLvl(), xi.skillRank.A_PLUS)
     end
 
-    if attacker:isPC() then
+    if attacker:isPCOrNtTrust() then
         attackerSkill = attacker:getSkillLevel(attacker:getWeaponSkillType(xi.slot.MAIN)) + attacker:getILvlSkill()
     else
         attackerSkill = xi.data.skillLevel.getSkillCap(attacker:getMainLvl(), xi.skillRank.A_PLUS)
@@ -1249,7 +1249,7 @@ xi.combat.physical.canBlock = function(defender, attacker)
         defender:isFacing(attacker) and
         not defender:hasPreventActionEffect(true)
     then
-        if defender:isPC() and defender:getSkillRank(xi.skill.SHIELD) > 0 then
+        if defender:isPCNtTrust() and defender:getSkillRank(xi.skill.SHIELD) > 0 then
             local shield = defender:getEquippedItem(xi.slot.SUB)
             if shield then
                 canBlock = shield:isShield()
@@ -1282,7 +1282,7 @@ xi.combat.physical.calculateBlockRate = function(defender, attacker)
     local attackSkill = attacker:getSkillLevel(attackerSkillType)
     local blockSkill = defender:getSkillLevel(xi.skill.SHIELD)
 
-    if defender:isPC() then
+    if defender:isPCNtTrust() then
         local shield = defender:getEquippedItem(xi.slot.SUB)
         -- already checked in canBlock but check again here to make sure
         if shield and shield:isShield() then
@@ -1314,7 +1314,7 @@ xi.combat.physical.calculateBlockRate = function(defender, attacker)
         end
     end
 
-    if defender:isPC() then
+    if defender:isPCNtTrust() then
         -- get blockrate from table and use default value of 0
         blockRate = shieldSizeToBlockRateTable[shieldSize] or 0
     end
@@ -1350,7 +1350,7 @@ xi.combat.physical.getDamageReductionForBlock = function(defender, attacker, dam
         -- shield def bonus is a flat raw damage reduction that occurs before absorb
         damage = math.max(0, damage - defender:getMod(xi.mod.SHIELD_DEF_BONUS))
 
-        if defender:isPC() then
+        if defender:isPCNtTrust() then
             local shield = defender:getEquippedItem(xi.slot.SUB)
             local absorb = utils.clamp(100 - shield:getShieldAbsorptionRate(), 0, 100)
             damage = math.floor(damage * (absorb / 100))
@@ -1390,7 +1390,7 @@ xi.combat.physical.isParried = function(defender, attacker)
     local parried = false
 
     if xi.combat.physical.canParry(defender, attacker) then
-        local isPC = defender:isPC()
+        local isPCOrNtTrust = defender:isPCOrNtTrust()
 
         if xi.combat.physical.calculateParryRate(defender, attacker) * 100 >= math.randomInt(1, 10000) then
             parried = true
@@ -1404,7 +1404,7 @@ xi.combat.physical.isParried = function(defender, attacker)
                 defender:addHP(recoveryValue)
             end
 
-            if isPC then
+            if isPCOrNtTrust then
                 -- handle tactical parry
                 if defender:hasTrait(xi.trait.TACTICAL_PARRY) then
                     defender:addTP(defender:getMod(xi.mod.TACTICAL_PARRY))
@@ -1429,10 +1429,10 @@ xi.combat.physical.isGuarded = function(defender, attacker)
     local guarded = false
 
     if xi.combat.physical.canGuard(defender, attacker) then
-        local isPC = defender:isPC()
+        local isPCOrNtTrust = defender:isPCOrNtTrust()
         if xi.combat.physical.calculateGuardRate(defender, attacker) * 100 >= math.randomInt(1, 10000) then
             guarded = true
-            if isPC then
+            if isPCOrNtTrust then
                 -- handle tactical guard
                 if defender:hasTrait(xi.trait.TACTICAL_GUARD) then
                     defender:addTP(defender:getMod(xi.mod.TACTICAL_GUARD))

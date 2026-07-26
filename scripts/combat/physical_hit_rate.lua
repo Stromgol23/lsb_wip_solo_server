@@ -14,7 +14,7 @@ xi.combat.physicalHitRate.checkAnticipated = function(attacker, defender)
 
     -- Calculate chance to retain "Third Eye".
     local thirdEyeRetentionChance = 0
-    local canRetainThirdEye = not defender:isPC() or defender:isPC() and defender:isWeaponTwoHanded()
+    local canRetainThirdEye = not defender:isPCOrNtTrust() or defender:isPCOrNtTrust() and defender:isWeaponTwoHanded()
 
     if defender:hasStatusEffect(xi.effect.SEIGAN) and canRetainThirdEye then
         -- Duration left.
@@ -51,7 +51,7 @@ end
 xi.combat.physicalHitRate.getPhysicalHitRateCap = function(attacker, slot)
     if attacker:isPet() then
         return 0.99
-    elseif attacker:isPC() then
+    elseif attacker:isPCOrNtTrust() then
         if attacker:isUsingH2H() then -- Kicks aren't explicitly listed as 99%, TODO: needs verification
             return 0.99
         elseif attacker:isWeaponTwoHanded() or slot >= xi.attackAnimation.LEFT_ATTACK then -- 1h offhand, ranged
@@ -158,11 +158,11 @@ local function accuracyAndEvasionToHitRate(attacker, target, acc, eva)
         end
 
         -- Accuracy Bonus, doesn't apply to PCs
-        if not attacker:isPC() and attacker:getMainLvl() > target:getMainLvl() then
+        if not attacker:isPCOrNtTrust() and attacker:getMainLvl() > target:getMainLvl() then
             acc = acc + dlvl * 4
 
         -- Accuracy Penalty, only applies to PCs -- TODO: does this apply to player pets?
-        elseif attacker:isPC() and attacker:getMainLvl() < target:getMainLvl() then
+        elseif attacker:isPCOrNtTrust() and attacker:getMainLvl() < target:getMainLvl() then
             acc = acc + dlvl * 4
         end
     end

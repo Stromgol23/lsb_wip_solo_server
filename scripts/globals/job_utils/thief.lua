@@ -74,7 +74,7 @@ end
 -- Ability Check Functions
 -----------------------------------
 xi.job_utils.thief.checkAccomplice = function(player, target, ability)
-    if target == nil or target:getID() == player:getID() or not target:isPC() then
+    if target == nil or target:getID() == player:getID() or not target:isPCOrNtTrust() then
         return xi.msg.basic.CANNOT_ON_THAT_TARG, 0
     else
         return 0, 0
@@ -82,7 +82,7 @@ xi.job_utils.thief.checkAccomplice = function(player, target, ability)
 end
 
 xi.job_utils.thief.checkCollaborator = function(player, target, ability)
-    if target == nil or target:getID() == player:getID() or not target:isPC() then
+    if target == nil or target:getID() == player:getID() or not target:isPCOrNtTrust() then
         return xi.msg.basic.CANNOT_ON_THAT_TARG, 0
     else
         return 0, 0

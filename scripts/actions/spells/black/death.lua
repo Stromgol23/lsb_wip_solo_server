@@ -15,7 +15,7 @@ end
 
 spellObject.onSpellCast = function(caster, target, spell)
     -- Player spell.
-    if caster:isPC() then
+    if caster:isPCOrNtTrust() then
         local instaDeath = false
         local result     = 0
 

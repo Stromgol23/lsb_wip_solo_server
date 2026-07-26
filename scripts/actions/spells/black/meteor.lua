@@ -24,7 +24,7 @@ spellObject.onSpellCast = function(caster, target, spell)
     --NOT AFFECTED BY DARK BONUSES (bonus ETC)
     --I'll just point this out again. It can't resist, there's no dINT, and the damage is non-elemental. The only terms that affect it for monsters (that we know of) are MDB and MDT. If a --normal monster would take 50k damage from your group, Botulus would take 40k damage. Every. Time.
     local damage = 0
-    if caster:isPC() then
+    if caster:isPCOrNtTrust() then
         damage = ((100 + caster:getMod(xi.mod.MATT)) / (100 + target:getMod(xi.mod.MDEF))) * (caster:getStat(xi.mod.INT) + caster:getSkillLevel(xi.skill.ELEMENTAL_MAGIC) / 6) * 3.5
     elseif caster:getFamily() == xi.mobFamily.BEHEMOTH then -- Behemoth family
         -- Not entirely accurate until mobspell skills are reworked. #7222

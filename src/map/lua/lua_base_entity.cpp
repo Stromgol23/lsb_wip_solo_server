@@ -1743,6 +1743,18 @@ bool CLuaBaseEntity::isPC() const
 }
 
 /************************************************************************
+ *  Function: isPCOrNtTrust()
+ *  Purpose : Returns true if entity is a PC or nt trust
+ *  Example : if target:isPCOrNtTrust() then
+ *  Notes   :
+ ************************************************************************/
+
+bool CLuaBaseEntity::isPCOrNtTrust() const
+{
+    return m_PBaseEntity->IsPCOrNtTrust();
+}
+
+/************************************************************************
  *  Function: isNPC()
  *  Purpose : Returns true if entity is of the NPC object type
  *  Example : if target:isNPC() then
@@ -4366,6 +4378,21 @@ auto CLuaBaseEntity::getEquippedItem(uint8 slot) -> CItem*
             return slotItem;
         }
     }
+    else if (CBattleEntity* PBattleEntity = static_cast<CBattleEntity*>(m_PBaseEntity); PBattleEntity->IsPCOrNtTrust())
+    {
+        if (slot > SLOT_AMMO)
+        {
+            ShowWarning("Invalid slot passed to function");
+            return nullptr;
+        }
+
+        auto* slotItem = PBattleEntity->m_Weapons[static_cast<SLOTTYPE>(slot)];
+
+        if (slotItem)
+        {
+            return slotItem;
+        }
+    }
 
     return nullptr;
 }
@@ -5551,6 +5578,24 @@ int8 CLuaBaseEntity::getShieldSize()
 {
     int8 shieldSize = 0;
 
+    // nt TODO : kinda bad
+    if (m_PBaseEntity->IsPCOrNtTrust())
+    {
+        CItemEquipment* PItem = static_cast<CBattleEntity*>(m_PBaseEntity)->m_Weapons[SLOT_SUB];
+
+        if (PItem == nullptr)
+        {
+            return 0;
+        }
+
+        if (!PItem->IsShield())
+        {
+            return 0;
+        }
+
+        return PItem->getShieldSize();
+    }
+
     switch (m_PBaseEntity->objtype)
     {
         case TYPE_PC:
@@ -5583,6 +5628,15 @@ int16 CLuaBaseEntity::getShieldDefense()
     if (m_PBaseEntity->objtype == TYPE_PC)
     {
         return static_cast<CCharEntity*>(m_PBaseEntity)->getShieldDefense();
+    }
+    else if (CBattleEntity* PBattleEntity = static_cast<CBattleEntity*>(m_PBaseEntity); PBattleEntity->IsPCOrNtTrust())
+    {
+        CItemEquipment* PItem = PBattleEntity->m_Weapons[SLOT_SUB];
+
+        if (PItem && PItem->IsShield())
+        {
+            return PItem->getModifier(Mod::DEF);
+        }
     }
     else
     {
@@ -13335,7 +13389,7 @@ bool CLuaBaseEntity::isDualWielding()
 bool CLuaBaseEntity::isUsingH2H()
 {
     CCharEntity* PCharEntity   = dynamic_cast<CCharEntity*>(m_PBaseEntity);
-    CMobEntity*  PBattleEntity = dynamic_cast<CMobEntity*>(m_PBaseEntity);
+    CBattleEntity*  PBattleEntity = dynamic_cast<CBattleEntity*>(m_PBaseEntity);
 
     if (PCharEntity)
     {
@@ -13374,16 +13428,16 @@ bool CLuaBaseEntity::isUsingH2H()
 
 uint16 CLuaBaseEntity::getBaseWeaponDelay(uint16 slot)
 {
-    if (m_PBaseEntity->objtype != TYPE_PC)
+    if (m_PBaseEntity->IsPCOrNtTrust()) // nt TODO : might want to fix this. Lua uses this?
     {
         ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
         return 0;
     }
-    CCharEntity* PCharEntity = dynamic_cast<CCharEntity*>(m_PBaseEntity);
+    CBattleEntity* PBattleEntity = dynamic_cast<CBattleEntity*>(m_PBaseEntity);
 
-    if (PCharEntity)
+    if (PBattleEntity)
     {
-        CItemWeapon* PWeapon = dynamic_cast<CItemWeapon*>(PCharEntity->getEquip(static_cast<SLOTTYPE>(slot)));
+        CItemWeapon* PWeapon = dynamic_cast<CItemWeapon*>(PBattleEntity->m_Weapons[static_cast<SLOTTYPE>(slot)]);
 
         if (PWeapon)
         {
@@ -14883,12 +14937,25 @@ int16 CLuaBaseEntity::getGearModFromSlot(uint8 slot, Mod modId)
         return 0;
     }
 
-    auto*           PChar = static_cast<CCharEntity*>(m_PBaseEntity);
-    CItemEquipment* PItem = PChar->getEquip(static_cast<SLOTTYPE>(slot));
-
-    if (PItem)
+    if (m_PBaseEntity->objtype == TYPE_PC)
     {
-        return PItem->getModifier(modId);
+        auto*           PChar = static_cast<CCharEntity*>(m_PBaseEntity);
+        CItemEquipment* PItem = PChar->getEquip(static_cast<SLOTTYPE>(slot));
+
+        if (PItem)
+        {
+            return PItem->getModifier(modId);
+        }
+    }
+    else if (slot <= 3)
+    {
+        auto*           PBattleEntity = static_cast<CBattleEntity*>(m_PBaseEntity);
+        CItemEquipment* PItem = PBattleEntity->m_Weapons[static_cast<SLOTTYPE>(slot)];
+
+        if (PItem)
+        {
+            return PItem->getModifier(modId);
+        }
     }
 
     return 0;
@@ -15622,16 +15689,16 @@ uint16 CLuaBaseEntity::getAmmoDmg()
 
 uint16 CLuaBaseEntity::getWeaponHitCount(bool offhand)
 {
-    if (m_PBaseEntity->objtype != TYPE_PC)
+    if (m_PBaseEntity->objtype == TYPE_NPC)
     {
         ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
         return 0;
     }
 
-    if (CCharEntity* PChar = dynamic_cast<CCharEntity*>(m_PBaseEntity))
+    if (CBattleEntity* PBattleEntity = dynamic_cast<CBattleEntity*>(m_PBaseEntity))
     {
-        CItemWeapon* PMain = dynamic_cast<CItemWeapon*>(PChar->getEquip(SLOT_MAIN));
-        CItemWeapon* PSub  = dynamic_cast<CItemWeapon*>(PChar->getEquip(SLOT_SUB));
+        CItemWeapon* PMain = dynamic_cast<CItemWeapon*>(PBattleEntity->m_Weapons[SLOT_MAIN]);
+        CItemWeapon* PSub  = dynamic_cast<CItemWeapon*>(PBattleEntity->m_Weapons[SLOT_SUB]);
 
         if (offhand && PSub)
         {
@@ -15698,7 +15765,7 @@ uint16 CLuaBaseEntity::getWeaponSkillLevel(uint8 slotID)
         return 0;
     }
 
-    if (m_PBaseEntity->objtype == TYPE_PC)
+    if (m_PBaseEntity->objtype == TYPE_PC) // nt TODO : check to see if lua uses this and fix
     {
         if (slotID > 3)
         {
@@ -15833,7 +15900,7 @@ uint8 CLuaBaseEntity::getWeaponSubSkillType(uint8 slotID)
 
 auto CLuaBaseEntity::getWSSkillchainProp() -> std::tuple<uint8, uint8, uint8>
 {
-    if (m_PBaseEntity->objtype != TYPE_PC)
+    if (m_PBaseEntity->objtype != TYPE_PC) // nt TODO : check if lua uses this. Might want to fix
     {
         ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
         return { 0, 0, 0 };
@@ -20356,6 +20423,7 @@ void CLuaBaseEntity::Register()
 
     SOL_REGISTER("getObjType", CLuaBaseEntity::getObjType);
     SOL_REGISTER("isPC", CLuaBaseEntity::isPC);
+    SOL_REGISTER("isPCOrNtTrust", CLuaBaseEntity::isPCOrNtTrust);
     SOL_REGISTER("isNPC", CLuaBaseEntity::isNPC);
     SOL_REGISTER("isMob", CLuaBaseEntity::isMob);
     SOL_REGISTER("isPet", CLuaBaseEntity::isPet);

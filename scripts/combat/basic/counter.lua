@@ -26,7 +26,7 @@ xi.combat.counter.checkSeiganCounter = function(attacker, defender)
     end
 
     -- Early return: Defender is a player without the proper weapon type.
-    if defender:isPC() and not defender:isWeaponTwoHanded() then
+    if defender:isPCOrNtTrust() and not defender:isWeaponTwoHanded() then
         return false
     end
 

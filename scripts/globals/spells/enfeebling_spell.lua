@@ -136,7 +136,7 @@ local function executeImmunobreak(caster, target, spell, effectId)
     end
 
     -- Early return: Only players can immunobreak. (NOTE: Any job can proc Immunobreaks.)
-    if not caster:isPC() then
+    if not caster:isPCOrNtTrust() then
         return
     end
 
@@ -470,7 +470,7 @@ xi.spells.enfeebling.useEnfeeblingSpell = function(caster, target, spell)
 
     -- Break: Player petrification sucks.
     elseif spellEffect == xi.effect.PETRIFICATION then
-        if caster:isPC() then
+        if caster:isPCOrNtTrust() then           -- nt TODO : what does this even do?
             subpotency = 1
         end
 
