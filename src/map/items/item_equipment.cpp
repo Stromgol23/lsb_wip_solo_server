@@ -214,6 +214,11 @@ void CItemEquipment::setRemoveSlotId(uint16 removSlot)
     m_removeSlotID = removSlot;
 }
 
+void CItemEquipment::setShieldAbsorption(uint8 shieldAbsorption)
+{
+    m_absorption = shieldAbsorption;
+}
+
 /// <summary>
 /// Sets the equip slots which should be set to blank from the characters appearance when the item is equipped or lockstyled
 /// Used for items which occupy multiple appearance slots

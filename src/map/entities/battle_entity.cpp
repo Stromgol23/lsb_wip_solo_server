@@ -1777,7 +1777,7 @@ void CBattleEntity::addModifier(Mod type, int16 amount)
     }
 }
 
-void CBattleEntity::addModifiers(std::vector<CModifier>* modList)
+void CBattleEntity::addModifiers(const std::vector<CModifier>* modList)
 {
     TracyZoneScoped;
 
@@ -2167,7 +2167,7 @@ void CBattleEntity::delPetModifier(Mod type, PetModType petmod, int16 amount)
     }
 }
 
-void CBattleEntity::addPetModifiers(std::vector<CPetModifier>* modList)
+void CBattleEntity::addPetModifiers(const std::vector<CPetModifier>* modList)
 {
     TracyZoneScoped;
 
@@ -2177,7 +2177,7 @@ void CBattleEntity::addPetModifiers(std::vector<CPetModifier>* modList)
     }
 }
 
-void CBattleEntity::delPetModifiers(std::vector<CPetModifier>* modList)
+void CBattleEntity::delPetModifiers(const std::vector<CPetModifier>* modList)
 {
     TracyZoneScoped;
 

@@ -86,6 +86,7 @@ public:
     void setEquipSlotId(uint16 equipSlot);
     void setRemoveSlotId(uint16 removSlot);
     void setRemoveSlotLookId(uint16 removSlotLook);
+    void setShieldAbsorption(uint8 shieldAbsorption);
     void setAugment(uint8 slot, uint16 type, uint8 value);
     void setTrialNumber(uint16);
     void setSuperiorLevel(uint8 level);

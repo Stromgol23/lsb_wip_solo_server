@@ -43,7 +43,7 @@ public:
     uint16 getDelay() const;
     uint16 getBaseDelay() const;
     uint16 getDamage() const;
-    auto   getDmgType() -> xi::DamageType;
+    auto   getDmgType() const -> xi::DamageType;
     uint8  getAdditionalEffect() const;
     uint8  getHitCount() const;
     double getDPS() const;

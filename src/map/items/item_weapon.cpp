@@ -417,7 +417,7 @@ void CItemWeapon::setDmgType(xi::DamageType dmgType)
  *                                                                       *
  ************************************************************************/
 
-auto CItemWeapon::getDmgType() -> xi::DamageType
+auto CItemWeapon::getDmgType() const -> xi::DamageType
 {
     return m_dmgType;
 }
