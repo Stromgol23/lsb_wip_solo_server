@@ -532,7 +532,8 @@ void CEntityUpdatePacket::updateWith(CBaseEntity* PEntity, ENTITYUPDATE type, ui
     }
 
     // Slightly bigger packet to encompass both name and model on first spawn, and only for dynamic entities.
-    if (type == ENTITY_SPAWN && PEntity->isRenamed && PEntity->look.size == MODEL_EQUIPPED && PEntity->targid >= 0x700)
+    // ++ forcing name update for trusts using model_equipped
+    if (type == ENTITY_SPAWN && (PEntity->isRenamed || PEntity->objtype == TYPE_TRUST) && PEntity->look.size == MODEL_EQUIPPED && PEntity->targid >= 0x700)
     {
         this->setSize(0x56);
 
