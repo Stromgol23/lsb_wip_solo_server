@@ -119,7 +119,7 @@ local function setupAI(trust)
 
     local lvl = trust:getMainLvl()
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.MB_AVAILABLE, 0, ai.r.MA, ai.s.MB_ELEMENT, xi.magic.spellFamily.NONE)
+    trust:addGambit(ai.t.TARGET, ai.c.MB_AVAILABLE, 0, ai.r.MA, ai.s.MB_ELEMENT, xi.magic.spellFamily.NONE)
 
     local drainC = { {ai.t.TARGET, ai.c.HPP_GTE, 1}, {ai.t.SELF, ai.c.HPP_LT, 50} }
     trust:addGambit(drainC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.DRAIN)
@@ -139,15 +139,15 @@ local function setupAI(trust)
     local blindC = { {ai.t.TARGET, ai.c.NOT_STATUS, xi.effect.BLINDNESS}, {ai.t.TARGET, ai.c.HPP_GTE, 25} }
     trust:addGambit(blindC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.BLIND, 40)
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_WS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_MS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_JA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.CASTING_MA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.READYING_WS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.READYING_MS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.READYING_JA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.CASTING_MA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
 
     if lvl >= 15 then
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.HPP_GTE, 75, ai.r.JA, ai.s.SPECIFIC, xi.ja.ELEMENTAL_SEAL)
+        trust:addGambit(ai.t.TARGET, ai.c.HPP_GTE, 75, ai.r.JA, ai.s.SPECIFIC, xi.ja.ELEMENTAL_SEAL)
     end
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.ALWAYS, 0, ai.r.MA, ai.s.BEST_AGAINST_TARGET, xi.magic.spellFamilyGroup.DAMAGE_ANY, 20)
+    trust:addGambit(ai.t.TARGET, ai.c.ALWAYS, 0, ai.r.MA, ai.s.BEST_AGAINST_TARGET, xi.magic.spellFamilyGroup.DAMAGE_ANY, 20)
 
     trust:setAutoAttackEnabled(false)
     trust:setMobMod(xi.mobMod.TRUST_DISTANCE, xi.trust.movementType.NO_MOVE)

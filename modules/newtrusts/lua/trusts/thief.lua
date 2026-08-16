@@ -139,9 +139,9 @@ local function setupAI(trust)
     local lvl = trust:getMainLvl()
 
     if lvl >= 15 then
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.SNEAK_ATTACK)
+        trust:addGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.SNEAK_ATTACK)
     end
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.WS, ai.s.HIGHEST, 0)
+    trust:addGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.WS, ai.s.HIGHEST, 0)
 
     -- need to move behind the target
 

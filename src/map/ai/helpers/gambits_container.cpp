@@ -1002,6 +1002,23 @@ auto CGambitsContainer::Tick(timer::time_point tick) -> Task<void>
                     executedAnyAction = true;
                 }
             }
+            else if (action.reaction == G_REACTION::WS)
+            {
+                if (POwner->health.tp >= 1000)
+                {
+                    std::optional<TrustSkill_t> chosen_skill;
+                    if (!tp_skills.empty())
+                    {
+                        chosen_skill = SelectWS(tp_select);
+                    }
+
+                    if (chosen_skill)
+                    {
+                        ExecuteSkill(chosen_skill, target);
+                        executedAnyAction = true;
+                    }
+                }
+            }
         }
 
         // If we executed any action and the gambit has a retry_delay, set last_used
@@ -1483,6 +1500,64 @@ auto CGambitsContainer::CheckTrigger(const CBattleEntity* triggerTarget, const G
                 predicateResults.push_back(canUseUriel);
                 continue;
             }
+            case G_CONDITION::WS_ASAP:
+            {
+                return POwner->health.tp >= 1000;
+                break;
+            }
+            case G_CONDITION::WS_OPENER:
+            {
+                if (POwner->health.tp >= 1000)
+                {
+                    bool result = false;
+                    // clang-format off
+                    static_cast<CCharEntity*>(POwner->PMaster)->ForPartyWithTrusts([&](CBattleEntity* PMember)
+                    {
+                        if (PMember->health.tp >= 1000 && PMember != POwner)
+                        {
+                            result = true;
+                        }
+                    });
+                    // clang-format on
+                    return result;
+                }
+                return false;
+                break;
+            }
+            case G_CONDITION::WS_CLOSER:
+            {
+                if (POwner->health.tp >= 1000)
+                {
+                    auto* PSCEffect = triggerTarget->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Skillchain);
+
+                    // TODO: ...and has a valid WS...
+
+                    return PSCEffect && PSCEffect->GetStartTime() + 3s < timer::now();
+                }
+                return false;
+                break;
+            }
+            case G_CONDITION::WS_CLOSER_UNTIL_TP:
+            {
+                if (POwner->health.tp >= 1000)
+                {
+                    if (tp_value <= 1500) // If the value provided by the script is missing or too low
+                    {
+                        tp_value = 1500; // Apply the minimum TP Hold Threshold
+                    }
+                    if (POwner->health.tp >= tp_value) // tp_value reached
+                    {
+                        return true; // Time to WS!
+                    }
+                    auto* PSCEffect = triggerTarget->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Skillchain);
+
+                    // TODO: ...and has a valid WS...
+
+                    return PSCEffect && PSCEffect->GetStartTime() + 3s < timer::now();
+                }
+                return false;
+                break;
+            }
             default:
             {
                 predicateResults.push_back(false);
@@ -1877,6 +1952,142 @@ bool CGambitsContainer::PartyHasTank()
         });
     // clang-format on
     return hasTank;
+}
+
+std::optional<TrustSkill_t> CGambitsContainer::SelectWS(G_SELECT select)
+{
+    auto*                       target = POwner->GetBattleTarget();
+    std::optional<TrustSkill_t> chosen_skill;
+    switch (select)
+    {
+        case G_SELECT::RANDOM:
+        {
+            chosen_skill = xirand::GetRandomElement(tp_skills);
+            break;
+        }
+        case G_SELECT::HIGHEST: // Form the best possible skillchain
+        {
+            auto* PSCEffect = target->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Skillchain);
+
+            if (!PSCEffect) // Opener
+            {
+                // TODO: This relies on the skills being passed in in some kind of correct order...
+                // Probably best to do this another way
+                chosen_skill = tp_skills.at(tp_skills.size() - 1);
+                break;
+            }
+
+            // Closer
+            SKILLCHAIN_ELEMENT chosen_skillchain = SC_NONE;
+            for (auto& skill : tp_skills)
+            {
+                std::list<SKILLCHAIN_ELEMENT> resonanceProperties;
+                if (uint16 power = PSCEffect->GetPower())
+                {
+                    resonanceProperties.emplace_back((SKILLCHAIN_ELEMENT)(power & 0xF));
+                    resonanceProperties.emplace_back((SKILLCHAIN_ELEMENT)(power >> 4 & 0xF));
+                    resonanceProperties.emplace_back((SKILLCHAIN_ELEMENT)(power >> 8));
+                }
+
+                std::list<SKILLCHAIN_ELEMENT> skillProperties;
+                skillProperties.emplace_back((SKILLCHAIN_ELEMENT)skill.primary);
+                skillProperties.emplace_back((SKILLCHAIN_ELEMENT)skill.secondary);
+                skillProperties.emplace_back((SKILLCHAIN_ELEMENT)skill.tertiary);
+                if (SKILLCHAIN_ELEMENT possible_skillchain = battleutils::FormSkillchain(resonanceProperties, skillProperties);
+                    possible_skillchain != SC_NONE)
+                {
+                    if (possible_skillchain >= chosen_skillchain)
+                    {
+                        chosen_skill      = skill;
+                        chosen_skillchain = possible_skillchain;
+                    }
+                }
+            }
+            break;
+        }
+        case G_SELECT::SPECIAL_AYAME:
+        {
+            auto* PMaster                = static_cast<CCharEntity*>(POwner->PMaster);
+            auto* PMasterController      = static_cast<CPlayerController*>(PMaster->PAI->GetController());
+            auto* PMasterLastWeaponSkill = PMasterController->getLastWeaponSkill();
+
+            if (PMasterLastWeaponSkill != nullptr)
+            {
+                SKILLCHAIN_ELEMENT chosen_skillchain = SC_NONE;
+                for (auto& skill : tp_skills)
+                {
+                    std::list<SKILLCHAIN_ELEMENT> resonanceProperties;
+                    resonanceProperties.emplace_back((SKILLCHAIN_ELEMENT)skill.primary);
+                    resonanceProperties.emplace_back((SKILLCHAIN_ELEMENT)skill.secondary);
+                    resonanceProperties.emplace_back((SKILLCHAIN_ELEMENT)skill.tertiary);
+
+                    std::list<SKILLCHAIN_ELEMENT> skillProperties;
+                    skillProperties.emplace_back((SKILLCHAIN_ELEMENT)PMasterLastWeaponSkill->getPrimarySkillchain());
+                    skillProperties.emplace_back((SKILLCHAIN_ELEMENT)PMasterLastWeaponSkill->getSecondarySkillchain());
+                    skillProperties.emplace_back((SKILLCHAIN_ELEMENT)PMasterLastWeaponSkill->getTertiarySkillchain());
+                    if (SKILLCHAIN_ELEMENT possible_skillchain = battleutils::FormSkillchain(resonanceProperties, skillProperties);
+                        possible_skillchain != SC_NONE)
+                    {
+                        if (possible_skillchain >= chosen_skillchain)
+                        {
+                            chosen_skill      = skill;
+                            chosen_skillchain = possible_skillchain;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                chosen_skill = tp_skills.at(tp_skills.size() - 1);
+            }
+
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+    return chosen_skill;
+}
+
+bool CGambitsContainer::ExecuteSkill(std::optional<TrustSkill_t> PSkill, CBattleEntity* PTarget)
+{
+    auto* controller = static_cast<CTrustController*>(POwner->PAI->GetController());
+    if (PSkill->skill_type == G_REACTION::WS)
+    {
+        CWeaponSkill* PWeaponSkill = battleutils::GetWeaponSkill(PSkill->skill_id);
+
+        if (PWeaponSkill == nullptr)
+        {
+            ShowError("G_REACTION::WS: PWeaponSkill was null.");
+            return false;
+        }
+
+        if (PSkill->valid_targets & TARGET_SELF)
+        {
+            PTarget = POwner;
+        }
+        else
+        {
+            PTarget = POwner->GetBattleTarget();
+        }
+
+        controller->WeaponSkill(PTarget->targid, PWeaponSkill->getID());
+    }
+    else // Mobskill
+    {
+        if (PSkill->valid_targets & TARGET_SELF || PSkill->valid_targets & TARGET_PLAYER_PARTY)
+        {
+            PTarget = POwner;
+        }
+        else
+        {
+            PTarget = POwner->GetBattleTarget();
+        }
+        controller->MobSkill(PTarget->targid, PSkill->skill_id, std::nullopt);
+    }
+    return true;
 }
 
 } // namespace gambits

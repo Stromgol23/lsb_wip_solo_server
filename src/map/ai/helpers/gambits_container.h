@@ -105,6 +105,10 @@ enum class G_CONDITION : uint16
     JA_ON_COOLDOWN     = 37,
     VAL_URIEL_CHECK    = 38,
     TIMER              = 39, // condition_arg in seconds
+    WS_ASAP            = 40,
+    WS_OPENER          = 41,
+    WS_CLOSER          = 42, // Will Hold TP Indefinitely to close a SC
+    WS_CLOSER_UNTIL_TP = 43, // Will Hold TP to close a SC until a certain threshold
 };
 
 enum class G_REACTION : uint16
@@ -149,6 +153,7 @@ enum class G_TP_TRIGGER : uint16
     OPENER          = 2,
     CLOSER          = 3, // Will Hold TP Indefinitely to close a SC
     CLOSER_UNTIL_TP = 4, // Will Hold TP to close a SC until a certain threshold
+    USE_GAMBIT      = 5, // do nothing. Gambits will take care of ws
 };
 
 struct Predicate_t
@@ -316,6 +321,9 @@ private:
     bool PartyHasHealer();
     bool PartyHasTank();
 
+    std::optional<TrustSkill_t> SelectWS(G_SELECT select);
+    bool                        ExecuteSkill(std::optional<TrustSkill_t> PSkill, CBattleEntity* PTarget);
+
     CTrustEntity*         POwner;
     timer::time_point     m_lastAction;
     std::vector<Gambit_t> gambits;
@@ -336,6 +344,11 @@ private:
         JOB_PUP,
         JOB_DNC,
         JOB_RUN,
+    };
+
+    std::set<JOBTYPE> ranged_jobs = {
+        JOB_RNG,
+        JOB_COR,
     };
 
     std::set<JOBTYPE> caster_jobs = {

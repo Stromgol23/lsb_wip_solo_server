@@ -131,10 +131,10 @@ local function setupAI(trust)
     local lvl = trust:getMainLvl()
 
     if lvl > 50 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.COMPOSURE, ai.r.JA, ai.s.SPECIFIC, xi.ja.COMPOSURE)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.COMPOSURE, ai.r.JA, ai.s.SPECIFIC, xi.ja.COMPOSURE)
     end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.MB_AVAILABLE, 0, ai.r.MA, ai.s.MB_ELEMENT, xi.magic.spellFamily.NONE)
+    trust:addGambit(ai.t.TARGET, ai.c.MB_AVAILABLE, 0, ai.r.MA, ai.s.MB_ELEMENT, xi.magic.spellFamily.NONE)
 
     if lvl >= 40 then
         local convertC = {{ai.t.SELF, ai.c.MPP_GTE, 10}, {ai.t.SELF, ai.c.MPP_LT, 25}, {ai.t.SELF, ai.c.HPP_GTE, 50}}
@@ -146,12 +146,12 @@ local function setupAI(trust)
 		trust:addGambit(phalanxC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.PHALANX)
 	end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.STATUS_FLAG, xi.effectFlag.DISPELABLE, ai.r.MA, ai.s.SPECIFIC, xi.ma.spell.DISPEL)
+    trust:addGambit(ai.t.TARGET, ai.c.STATUS_FLAG, xi.effectFlag.DISPELABLE, ai.r.MA, ai.s.SPECIFIC, xi.ma.spell.DISPEL)
 
-    trust:addSimpleGambit(ai.t.PARTY, ai.c.STATUS, xi.effect.SLEEP_I, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.CURE)
-    trust:addSimpleGambit(ai.t.PARTY, ai.c.STATUS, xi.effect.SLEEP_II, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.CURE)
+    trust:addGambit(ai.t.PARTY, ai.c.STATUS, xi.effect.SLEEP_I, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.CURE)
+    trust:addGambit(ai.t.PARTY, ai.c.STATUS, xi.effect.SLEEP_II, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.CURE)
 
-    trust:addSimpleGambit(ai.t.PARTY, ai.c.HPP_LT, 50, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURE)
+    trust:addGambit(ai.t.PARTY, ai.c.HPP_LT, 50, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURE)
 
     local wsC = {{ai.t.SELF, ai.c.WS_OPENER, 0}, {ai.t.TARGET, ai.c.NOT_SC_AVAILABLE, 0}}
     trust:addGambit(wsC, ai.r.WS, ai.s.RANDOM, 0)
@@ -165,12 +165,12 @@ local function setupAI(trust)
     local paralyzeC = { {ai.t.TARGET, ai.c.NOT_STATUS, xi.effect.PARALYSIS}, {ai.t.TARGET, ai.c.HPP_GTE, 75} }
     trust:addGambit(paralyzeC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.PARALYZE, 20)
 
-    trust:addSimpleGambit(ai.t.TANK, ai.c.NOT_STATUS, xi.effect.PHALANX, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.PHALANX_II)
-    trust:addSimpleGambit(ai.t.CASTER, ai.c.NOT_STATUS, xi.effect.REFRESH, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.REFRESH)
-    trust:addSimpleGambit(ai.t.MELEE, ai.c.NOT_STATUS, xi.effect.HASTE, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.HASTE)
-    trust:addSimpleGambit(ai.t.RANGED, ai.c.NOT_STATUS, xi.effect.FLURRY, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.FLURRY)
+    trust:addGambit(ai.t.TANK, ai.c.NOT_STATUS, xi.effect.PHALANX, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.PHALANX_II)
+    trust:addGambit(ai.t.CASTER, ai.c.NOT_STATUS, xi.effect.REFRESH, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.REFRESH)
+    trust:addGambit(ai.t.MELEE, ai.c.NOT_STATUS, xi.effect.HASTE, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.HASTE)
+    trust:addGambit(ai.t.RANGED, ai.c.NOT_STATUS, xi.effect.FLURRY, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.FLURRY)
 
-    trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.INT_BOOST, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.GAIN_INT)
+    trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.INT_BOOST, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.GAIN_INT)
 
     local enspellC = {  {ai.t.SELF, ai.c.NOT_STATUS, xi.effect.ENFIRE}, {ai.t.SELF, ai.c.NOT_STATUS, xi.effect.ENFIRE_II},
                         {ai.t.SELF, ai.c.NOT_STATUS, xi.effect.ENBLIZZARD}, {ai.t.SELF, ai.c.NOT_STATUS, xi.effect.ENBLIZZARD_II},

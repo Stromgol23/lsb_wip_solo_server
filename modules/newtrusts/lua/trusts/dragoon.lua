@@ -137,17 +137,17 @@ local function setupAI(trust)
     local lvl = trust:getMainLvl()
 
 	if lvl >= 50 then
-		trust:addSimpleGambit(ai.t.SELF, ai.c.HAS_TOP_ENMITY, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.SUPER_JUMP)
+		trust:addGambit(ai.t.SELF, ai.c.HAS_TOP_ENMITY, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.SUPER_JUMP)
 	end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.WS, ai.s.HIGHEST, 0)
+    trust:addGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.WS, ai.s.HIGHEST, 0)
 
 	if lvl >= 10 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.ALWAYS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.JUMP)
+        trust:addGambit(ai.t.SELF, ai.c.ALWAYS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.JUMP)
     end
 	
 	if lvl >= 35 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.ALWAYS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.HIGH_JUMP)
+        trust:addGambit(ai.t.SELF, ai.c.ALWAYS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.HIGH_JUMP)
     end
 
     trust:setTrustTPSkillSettings(ai.tp.USE_GAMBIT, ai.s.HIGHEST, 3000)

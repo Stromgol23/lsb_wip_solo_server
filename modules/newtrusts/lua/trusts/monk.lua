@@ -263,11 +263,11 @@ local function setupDpsAI(trust)
     local lvl = trust:getMainLvl()
 
     if lvl >= 65 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.FOOTWORK, ai.r.JA, ai.s.SPECIFIC, xi.ja.FOOTWORK)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.FOOTWORK, ai.r.JA, ai.s.SPECIFIC, xi.ja.FOOTWORK)
     end
 
     if lvl >= 35 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.HPP_LT, 60, ai.r.JA, ai.s.SPECIFIC, xi.ja.CHAKRA)
+        trust:addGambit(ai.t.SELF, ai.c.HPP_LT, 60, ai.r.JA, ai.s.SPECIFIC, xi.ja.CHAKRA)
     end
 
     if lvl >= 15 then
@@ -276,13 +276,13 @@ local function setupDpsAI(trust)
     end
 
     if lvl >= 5 then
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_OPENER, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.BOOST) -- boost when someone might ws
+        trust:addGambit(ai.t.TARGET, ai.c.WS_OPENER, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.BOOST) -- boost when someone might ws
     end
     if lvl >= 25 then
         local focusC = {{ai.t.SELF, ai.c.NOT_STATUS, xi.effect.FOCUS}, {ai.t.TARGET, ai.c.WS_CLOSER, 1500}}
         trust:addGambit(focusC, ai.r.JA, ai.s.SPECIFIC, xi.ja.FOCUS)
     end
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_CLOSER, 1500, ai.r.WS, ai.s.HIGHEST, 0)
+    trust:addGambit(ai.t.TARGET, ai.c.WS_CLOSER, 1500, ai.r.WS, ai.s.HIGHEST, 0)
 
 
     trust:setTrustTPSkillSettings(ai.tp.USE_GAMBIT, ai.s.HIGHEST, 1500)

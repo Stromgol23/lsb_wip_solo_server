@@ -139,16 +139,16 @@ local function setupAI(trust)
     local lvl = trust:getMainLvl()
 
     if lvl >= 20 then
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_WS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.WEAPON_BASH)
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_MS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.WEAPON_BASH)
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.CASTING_MA, 0, ai.r.JA, ai.s.SPECIFIC,  xi.ja.WEAPON_BASH)
-        trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_JA, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.WEAPON_BASH)
+        trust:addGambit(ai.t.TARGET, ai.c.READYING_WS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.WEAPON_BASH)
+        trust:addGambit(ai.t.TARGET, ai.c.READYING_MS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.WEAPON_BASH)
+        trust:addGambit(ai.t.TARGET, ai.c.CASTING_MA, 0, ai.r.JA, ai.s.SPECIFIC,  xi.ja.WEAPON_BASH)
+        trust:addGambit(ai.t.TARGET, ai.c.READYING_JA, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.WEAPON_BASH)
     end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_WS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_MS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.READYING_JA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.CASTING_MA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.READYING_WS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.READYING_MS, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.READYING_JA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
+    trust:addGambit(ai.t.TARGET, ai.c.CASTING_MA, 0, ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.STUN)
 
     local drainC = { {ai.t.TARGET, ai.c.HPP_GTE, 1}, {ai.t.SELF, ai.c.HPP_LT, 50} }
     trust:addGambit(drainC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.DRAIN)
@@ -156,7 +156,7 @@ local function setupAI(trust)
     local aspirC = { {ai.t.TARGET, ai.c.MPP_GTE, 25}, {ai.t.SELF, ai.c.MPP_LT, 50} }
     trust:addGambit(aspirC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.ASPIR, 20)
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.NOT_STATUS, xi.effect.POISON, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.POISON, 120)
+    trust:addGambit(ai.t.TARGET, ai.c.NOT_STATUS, xi.effect.POISON, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.POISON, 120)
 
     local bioC = {{ai.t.TARGET, ai.c.NOT_STATUS, xi.effect.BIO}, {ai.t.TARGET, ai.c.NOT_STATUS, xi.effect.DIA}}
     trust:addGambit(bioC, ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.BIO, 30)
@@ -165,7 +165,7 @@ local function setupAI(trust)
     trust:addGambit(absDexC, ai.s.SPECIFIC, xi.magic.spell.ABSORB_DEX, 40)
 
     if lvl >= 15 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.LAST_RESORT, ai.r.JA, ai.s.SPECIFIC, xi.ja.LAST_RESORT)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.LAST_RESORT, ai.r.JA, ai.s.SPECIFIC, xi.ja.LAST_RESORT)
     end
 
     if lvl >= 30 then
@@ -173,7 +173,7 @@ local function setupAI(trust)
         trust:addGambit(souleaterC, ai.r.JA, ai.s.SPECIFIC, xi.ja.SOULEATER)
     end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.MB_AVAILABLE, 0, ai.r.MA, ai.s.MB_ELEMENT, xi.magic.spellFamily.NONE)
+    trust:addGambit(ai.t.TARGET, ai.c.MB_AVAILABLE, 0, ai.r.MA, ai.s.MB_ELEMENT, xi.magic.spellFamily.NONE)
 
     trust:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.RANDOM, 1500)
 end

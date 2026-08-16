@@ -136,17 +136,17 @@ local function setupAI(trust)
     local lvl = trust:getMainLvl()
 
     if lvl >= 45 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.VELOCITY_SHOT, ai.r.JA, ai.s.SPECIFIC, xi.ja.VELOCITY_SHOT)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.VELOCITY_SHOT, ai.r.JA, ai.s.SPECIFIC, xi.ja.VELOCITY_SHOT)
     end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.SC_AVAILABLE, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.SHARPSHOT)
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.WS, ai.s.HIGHEST, 3000)
+    trust:addGambit(ai.t.TARGET, ai.c.SC_AVAILABLE, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.SHARPSHOT)
+    trust:addGambit(ai.t.TARGET, ai.c.WS_CLOSER, 0, ai.r.WS, ai.s.HIGHEST, 3000)
 
     if lvl >= 30 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.STATUS, xi.effect.SHARPSHOT, ai.r.JA, ai.s.SPECIFIC, xi.ja.BARRAGE)
+        trust:addGambit(ai.t.SELF, ai.c.STATUS, xi.effect.SHARPSHOT, ai.r.JA, ai.s.SPECIFIC, xi.ja.BARRAGE)
     end
 
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.NOT_HAS_TOP_ENMITY, 0, ai.r.RATTACK, 0, 0)
+    trust:addGambit(ai.t.TARGET, ai.c.NOT_HAS_TOP_ENMITY, 0, ai.r.RATTACK, 0, 0)
 
     -- need to move behind the target
 

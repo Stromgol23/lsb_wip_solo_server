@@ -282,18 +282,18 @@ local function setupDpsAI(trust)
     local lvl = trust:getMainLvl()
 
     if lvl >= 15 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.BERSERK, ai.r.JA, ai.s.SPECIFIC, xi.ja.BERSERK)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.BERSERK, ai.r.JA, ai.s.SPECIFIC, xi.ja.BERSERK)
     end
 
     if lvl >= 45 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.AGGRESSOR, ai.r.JA, ai.s.SPECIFIC, xi.ja.AGGRESSOR)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.AGGRESSOR, ai.r.JA, ai.s.SPECIFIC, xi.ja.AGGRESSOR)
     end
 
     if lvl >= 35 then
         local warcryC = {{ai.t.SELF, ai.c.NOT_STATUS, xi.effect.WARCRY}, {ai.t.TARGET, ai.c.WS_CLOSER, 0}}
         trust:addGambit(warcryC, ai.r.JA, ai.s.SPECIFIC, xi.ja.WARCRY)
     end
-    trust:addSimpleGambit(ai.t.TARGET, ai.c.WS_CLOSER, 1500, ai.r.WS, ai.s.HIGHEST, 0)
+    trust:addGambit(ai.t.TARGET, ai.c.WS_CLOSER, 1500, ai.r.WS, ai.s.HIGHEST, 0)
 
 
     trust:setTrustTPSkillSettings(ai.tp.USE_GAMBIT, ai.s.HIGHEST, 1500)
@@ -302,15 +302,15 @@ end
 local function setupTankAI(trust)
     local lvl = trust:getMainLvl()
     if lvl >= 5 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.ALWAYS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.PROVOKE)
+        trust:addGambit(ai.t.SELF, ai.c.ALWAYS, 0, ai.r.JA, ai.s.SPECIFIC, xi.ja.PROVOKE)
     end
 
     if lvl >= 25 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.DEFENDER, ai.r.JA, ai.s.SPECIFIC, xi.ja.DEFENDER)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.DEFENDER, ai.r.JA, ai.s.SPECIFIC, xi.ja.DEFENDER)
     end
 
     if lvl >= 60 then
-        trust:addSimpleGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.RETALIATION, ai.r.JA, ai.s.SPECIFIC, xi.ja.RETALIATION)
+        trust:addGambit(ai.t.SELF, ai.c.NOT_STATUS, xi.effect.RETALIATION, ai.r.JA, ai.s.SPECIFIC, xi.ja.RETALIATION)
     end
 
     local wsC = {{ai.t.SELF, ai.c.WS_ASAP, 0}, {ai.t.TARGET, ai.c.NOT_SC_AVAILABLE, 0}}

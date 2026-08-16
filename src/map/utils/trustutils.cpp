@@ -745,6 +745,11 @@ void LoadTrustStatsAndSkills(CTrustEntity* PTrust)
                 break;
             }
 
+            if (PWeaponSkill->getSkillLevel() > PTrust->GetSkill((xi::SkillType)PWeaponSkill->getType())) /// DON'T SUBMIT : need a way to apply this or not from data AND MIGHT BE WRONG. ADDED THE CAST AND I HAVE NO IDEA IF ITS GOOD
+            {
+                continue;
+            }
+
             skill = TrustSkill_t{
                 G_REACTION::WS,
                 skill_id,
