@@ -505,6 +505,7 @@ auto calculateSynthResult(CCharEntity* PChar) -> uint8
     uint8  currentHQTier   = 0;
     int16  synthDifficulty = 0;
     double successRate     = 0.0;
+    int16  finalSynthDifficulty = 0;
     bool   canHQ           = true;
 
     //------------------------------
@@ -554,6 +555,7 @@ auto calculateSynthResult(CCharEntity* PChar) -> uint8
         if (currentHQTier < finalHQTier)
         {
             finalHQTier = currentHQTier;
+            finalSynthDifficulty = synthDifficulty;
         }
 
         successRate = successRate + static_cast<double>(PChar->getMod(Mod::SYNTH_SUCCESS_RATE));
@@ -592,25 +594,40 @@ auto calculateSynthResult(CCharEntity* PChar) -> uint8
         return SYNTHESIS_SUCCESS;
     }
 
+    float  maxChanceHQ = 0.f;
+    float  minChanceHQ = 0.f;
+    float  finalDiff   = 0.f;
+    float  dDifficulty = 0.f;
     double chanceHQ = 0.0;
     switch (finalHQTier)
     {
         case 4: // 1 in 2
-            chanceHQ = 50.0;
+            minChanceHQ = maxChanceHQ = 50.f;
             break;
         case 3: // 1 in 4
-            chanceHQ = 25.0;
+            minChanceHQ = 25.f;
+            maxChanceHQ = 50.f;
+            dDifficulty = 20.f;
+            finalDiff   = (-finalSynthDifficulty) - 31;
             break;
         case 2: // 1 in 16
-            chanceHQ = 6.25;
+            minChanceHQ = 6.25f;
+            maxChanceHQ = 25.f;
+            dDifficulty = 20.f;
+            finalDiff   = (-finalSynthDifficulty) - 11;
             break;
         case 1: // 1 in 64
-            chanceHQ = 1.5625;
+            minChanceHQ = 1.5625f;
+            maxChanceHQ = 6.25f;
+            dDifficulty = 10.f;
+            finalDiff   = -finalSynthDifficulty;
             break;
         default: // No chance
-            chanceHQ = 0.0;
+            minChanceHQ = maxChanceHQ = 0.f;
             break;
     }
+
+    chanceHQ = dDifficulty != 0.f ? ((maxChanceHQ - minChanceHQ) * finalDiff / dDifficulty) + minChanceHQ : minChanceHQ;
 
     // See: https://www.bluegartr.com/threads/130586-CraftyMath-v2-Post-September-2017-Update page 3.
     chanceHQ = (chanceHQ + 100.0 * static_cast<double>(PChar->getMod(Mod::SYNTH_HQ_RATE)) / 512.0) * settings::get<double>("map.CRAFT_HQ_CHANCE_MULTIPLIER");
