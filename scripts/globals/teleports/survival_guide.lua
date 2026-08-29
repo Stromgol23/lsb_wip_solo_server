@@ -182,8 +182,8 @@ xi.survivalGuide.onEventFinish = function(player, eventId, option, npc)
     end
 
     -- Cost calculations.
-    local teleportCostGil  = 1000
-    local teleportCostTabs = 50
+    local teleportCostGil  = 100 --1000
+    local teleportCostTabs = 10 --50
     local canTeleport      = false
 
     -- When all mog tablets are found or in the tutorial, survival guides are free.
