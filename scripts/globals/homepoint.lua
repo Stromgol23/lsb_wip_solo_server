@@ -149,6 +149,7 @@ local function getCost(from, to, key)
     then
         return 0
     else
+		key = 1 -- don't submit : redo this in a module!
         return (500 * homepointData[to].fee) / (key and 5 or 1)
     end
 end
