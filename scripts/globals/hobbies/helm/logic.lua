@@ -189,7 +189,7 @@ xi.helm.onTrade = function(player, npc, trade, helmType, csid, func)
         if itemID ~= 0 then
             player:addItem(itemID)
 
-            local uses = (npc:getLocalVar('uses') - 1) % 4
+            local uses = (npc:getLocalVar('uses') - 1) % 12
             npc:setLocalVar('uses', uses)
 
             if uses == 0 then
