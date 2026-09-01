@@ -1249,7 +1249,7 @@ xi.combat.physical.canBlock = function(defender, attacker)
         defender:isFacing(attacker) and
         not defender:hasPreventActionEffect(true)
     then
-        if defender:isPCNtTrust() and defender:getSkillRank(xi.skill.SHIELD) > 0 then
+        if defender:isPCOrNtTrust() and defender:getSkillRank(xi.skill.SHIELD) > 0 then
             local shield = defender:getEquippedItem(xi.slot.SUB)
             if shield then
                 canBlock = shield:isShield()
